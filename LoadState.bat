@@ -1,3 +1,5 @@
+
+
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
 REM Version: 1.1 (2019-01-17)
@@ -13,6 +15,8 @@ REM	Initial
 REM Version: 1.1 (2019-01-17)
 REM	Added architecture selection
 REM	(For now you must choose either: amd64 for 64, x86 for 32, armd64 for arm)
+REM ******************************************************************************************
+REM TODO: Add option for load all users
 REM ******************************************************************************************
 
 
