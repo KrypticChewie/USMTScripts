@@ -19,19 +19,47 @@ REM Added scan all users if no user is set
 REM Version: 1.1.1 (2019-03-20)
 REM Added log name to be PC name if all users are being processed
 REM Added default settings displayed in prompts
+REM Version: 1.1.1 (2019-03-21)
+REM Added display of defaults at the begining of execution
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
 REM TODO: Add option for setting store path
-REM TODO: Add display of defaults
 REM TODO: Add procedure for changing defaults without creating too many options
 REM ******************************************************************************************
 REM BUG: Does not work when run from network because of path
 REM ******************************************************************************************
 
 
-
 SETLOCAL
+
+REM ******************************************************************************************
+REM Variables
+REM ******************************************************************************************
+SET USMTDomain=NPNT
+SET USMTPath=%~dp0
+SET USMTUser=AllUsers
+SET USMTArch=amd64
+SET USMTRunPath=%~dp0%USMTArch%
+REM ******************************************************************************************
+
+
+REM ******************************************************************************************
+REM Display Defaults
+REM ******************************************************************************************
+ECHO.
+ECHO.
+ECHO.
+ECHO The default values:
+ECHO.
+ECHO Domain: %USMTDomain%
+ECHO USMT Path: %USMTPath%
+ECHO User: All Users
+ECHO Architecture: %USMTArch%
+ECHO.
+ECHO.
+REM ******************************************************************************************
+
 
 REM Set domain to be used.  Will use NPNT is nothing is set.
 SET /P USMTDomain=Domain (Default=NPNT):
