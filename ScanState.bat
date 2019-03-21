@@ -20,6 +20,7 @@ REM Version: 1.1.1 (2019-03-20)
 REM Added log name to be PC name if all users are being processed
 REM Added default settings displayed in prompts
 REM Version: 1.1.1 (2019-03-21)
+REM Added display of defaults at start
 REM Added display of defaults at the begining of execution
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
