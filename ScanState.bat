@@ -22,6 +22,8 @@ REM Added default settings displayed in prompts
 REM Version: 1.1.1 (2019-03-21)
 REM Added display of defaults at start
 REM Added display of defaults at the begining of execution
+REM Version: 1.1.1 (2019-03-22)
+REM Fixed issue with network paths not working
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -87,11 +89,11 @@ REM Command parts
 REM *******************
 SET USMTProc=scanstate
 IF "%USMTUser%"=="AllUsers" (
-  SET USMTStore=%~d0\Data\%ComputerName%
-  SET USMTLog=/l:%~d0\Logs\Scans\%ComputerName%.log
+  SET USMTStore="%~dp0..\Data\%ComputerName%"
+  SET USMTLog=/l:"%~dp0..\Logs\Scans\%ComputerName%.log"
 ) ELSE (
-  SET USMTStore=%~d0\Data\%USMTUser%
-  SET USMTLog=/l:%~d0\Logs\Scans\%USMTUser%.log
+  SET USMTStore="%~dp0..\Data\%USMTUser%"
+  SET USMTLog=/l:"%~dp0..\Logs\Scans\%USMTUser%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
