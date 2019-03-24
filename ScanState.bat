@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.1 (2019-01-17)
+REM Version: 1.2.0 (2019-03-24)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -24,6 +24,8 @@ REM Added display of defaults at start
 REM Added display of defaults at the begining of execution
 REM Version: 1.1.1 (2019-03-22)
 REM Fixed issue with network paths not working
+REM Version: 1.2.0 (2019-03-24)
+REM Added architecture detection
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -42,7 +44,7 @@ REM ****************************************************************************
 SET USMTDomain=NPNT
 SET USMTPath=%~dp0
 SET USMTUser=AllUsers
-SET USMTArch=amd64
+SET USMTArch=%PROCESSOR_ARCHITECTURE%
 SET USMTRunPath=%~dp0%USMTArch%
 REM ******************************************************************************************
 
@@ -58,7 +60,7 @@ ECHO.
 ECHO Domain: %USMTDomain%
 ECHO USMT Path: %USMTPath%
 ECHO User: All Users
-ECHO Architecture: %USMTArch%
+ECHO Architecture (Detected): %USMTArch%
 ECHO.
 ECHO.
 REM ******************************************************************************************
