@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.1 (2019-03-24)
+REM Version: 1.2.0 (2019-03-24)
 REM Created By: Kris Deen (KrpyticChewie)
 REM Modified By: Phillipe Ramos (coolmolecule)
 REM ******************************************************************************************
