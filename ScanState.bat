@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.3.0 (2019-07-08)
+REM Version: 1.3.1 (2020-01-02)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -28,6 +28,8 @@ REM Version: 1.2.0 (2019-03-24)
 REM Added architecture detection
 REM Version: 1.3.0 (2019-07-08)
 REM Added offline scanning
+REM Version: 1.3.1 (2020-01-02)
+REM Fixed an issue with the Offline Scan option selection not working
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -49,6 +51,7 @@ SET USMTUser=AllUsers
 SET USMTArch=%PROCESSOR_ARCHITECTURE%
 SET USMTRunPath=%~dp0%USMTArch%
 SET USMTOffSwitch=/offlineWinDir:
+SET USMTOffPath=:\Windows
 REM ******************************************************************************************
 
 
@@ -95,10 +98,10 @@ SET /P USMTUseOff=Offline Scan? (Options=Yes No Default=No):
 IF NOT DEFINED USMTUseOff SET USMTUseOff=No
 
 REM Sets offline Windows folder path
-rem IF %USMTUseOff%=="Yes" (
-  SET /P USMTOffPath=Offline Windows Path (E.g. G:\Windows Default=C:\Windows):
-  IF NOT DEFINED USMTOffPath SET USMTOffPath=C:\Windows
-rem )
+IF "%USMTUseOff%"=="Yes" (
+  SET /P USMTOffDrive=Offline Windows Drive ^(E.g. X Default=C^):
+  IF NOT DEFINED USMTOffDrive SET USMTOffDrive=C
+)
 
 REM Command parts
 REM *******************
@@ -114,7 +117,7 @@ SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
 SET USMTOvrWr=/o
 IF "%USMTUseOff%"=="Yes" (
-  SET USMTOffCmd=%USMTOffSwitch%%USMTOffPath%
+  SET USMTOffCmd=%USMTOffSwitch%%USMTOffDrive%%USMTOffPath%
 ) ELSE (
   SET USMTOffCmd=
 )
@@ -123,9 +126,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	%USMTProc% %USMTStore% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+	ECHO %USMTProc% %USMTStore% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
 ) ELSE (
-  %USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+  ECHO %USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
   )
 )
 
