@@ -51,7 +51,7 @@ SET USMTUser=AllUsers
 SET USMTArch=%PROCESSOR_ARCHITECTURE%
 SET USMTRunPath=%~dp0%USMTArch%
 SET USMTOffSwitch=/offlineWinDir:
-SET USMTOffPath=:\Windows
+SET USMTOffPath=:\Windows\
 REM ******************************************************************************************
 
 
