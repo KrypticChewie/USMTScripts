@@ -28,6 +28,8 @@ REM Version: 1.1.1 (2019-03-22)
 REM Fixed issue with network paths not working
 REM Version: 1.2.0 (2019-03-24)
 REM Added architecture detection
+REM Version: 1.2.1 (2020-02-12)
+REM Added exclusion of logged in user
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -49,6 +51,9 @@ SET USMTUser=AllUsers
 SET USMTArch=%PROCESSOR_ARCHITECTURE%
 SET USMTRunPath=%~dp0%USMTArch%
 SET USMTPCName=NoPCName
+SET USMTTech=%USERNAME%
+SET USMTUiSwitch=/ue:
+SET USMTUeSwitch=/ui:
 REM ******************************************************************************************
 
 
@@ -87,9 +92,13 @@ IF NOT DEFINED USMTArch SET USMTArch=amd64
 REM Sets the path for the appropriate architecture executable.
 SET USMTRunPath=%~dp0%USMTArch%
 
+REM Sets exclude scanning of logged in user.
+SET /P USMTUserEx=Exclude logged in user? (Options=Yes No Default=Yes):
+IF NOT DEFINED USMTUserEx SET USMTUserEx=Yes
 
 REM Changes current folder to appropriate architecture executable.
 pushd %USMTRunPath%
+
 
 REM Command parts
 REM *******************
@@ -103,6 +112,11 @@ IF "%USMTUser%"=="AllUsers" (
   SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
+IF "%USMTUserEx%"=="Yes" (
+  SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
+) ELSE (
+  SET USMTUserCmd=%USMTUeSwitch%*\%USMTTech%
+)
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
 SET USMTOvrWr=/o
 REM *******************
@@ -110,13 +124,12 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	%USMTProc% %USMTStore% %USMTXml% %USMTLog%
+	%USMTProc% %USMTStore% %USMTUserCmd% %USMTXml% %USMTLog%
 ) ELSE (
-	%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog%
+	%USMTProc% %USMTStore% %USMTUserSel% %USMTUserCmd% %USMTXml% %USMTLog%
 )
 
 REM Reverts currnet folder to initial folder.
 popd
 
 pause
-
