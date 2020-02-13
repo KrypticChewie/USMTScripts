@@ -140,9 +140,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	ECHO %USMTProc% %USMTStore% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+	%USMTProc% %USMTStore% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
 ) ELSE (
-  ECHO %USMTProc% %USMTStore% %USMTUserSel% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+  %USMTProc% %USMTStore% %USMTUserSel% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
   )
 )
 
