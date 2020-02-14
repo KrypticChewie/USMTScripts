@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.3.1 (2020-01-02)
+REM Version: 1.3.3 (2020-02-14)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -32,6 +32,8 @@ REM Version: 1.3.1 (2020-01-02)
 REM Fixed an issue with the Offline Scan option selection not working
 REM Version: 1.3.2 (2020-02-12)
 REM Added exclusion of logged in user
+REM Version: 1.3.3 (2020-02-14)
+REM Added architecture automatically set (Itanium will exit the script) and domain detection
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -47,7 +49,7 @@ SETLOCAL
 REM ******************************************************************************************
 REM Variables
 REM ******************************************************************************************
-SET USMTDomain=NPNT
+SET USMTDomain=%USERDOMAIN%
 SET USMTPath=%~dp0
 SET USMTUser=AllUsers
 SET USMTArch=%PROCESSOR_ARCHITECTURE%
@@ -78,8 +80,8 @@ REM ****************************************************************************
 
 
 REM Set domain to be used.  Will use NPNT is nothing is set.
-SET /P USMTDomain=Domain (Default=NPNT):
-IF NOT DEFINED USMTDomain SET USMTDomain=NPNT
+SET /P USMTDomain=Domain ^(Detected=%USERDOMAIN%^):
+IF NOT DEFINED USMTDomain SET USMTDomain=%USERDOMAIN%
 
 REM Sets the path of the USMT as the current folder.
 SET USMTPath=%~dp0
@@ -88,9 +90,11 @@ REM Sets the user to be selected.
 SET /P USMTUser=User (Default=AllUsers):
 IF NOT DEFINED USMTUser SET USMTUser=AllUsers
 
-REM Sets the architecture to be used.
-SET /P USMTArch=Architecture (Options=amd64 x86 arm64 Default=amd64):
-IF NOT DEFINED USMTArch SET USMTArch=amd64
+IF %USMTArch%=="IA64" (
+  ECHO. USMT is not compatible with Itanium
+  pause
+  EXIT /B
+)
 
 REM Sets the path for the appropriate architecture executable.
 SET USMTRunPath=%~dp0%USMTArch%
