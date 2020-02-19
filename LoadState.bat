@@ -30,7 +30,9 @@ REM Added architecture detection
 REM Version: 1.2.1 (2020-02-12)
 REM Added exclusion of logged in user
 REM Version: 1.2.2 (2020-02-14)
-REM Added architecture automatically set (Itanium will exit the script) and domain detection 
+REM Added architecture automatically set (Itanium will exit the script) and domain detection
+REM Version: 1.2.3 (2020-02-18)
+REM Made if statements case insensitive, for prompt.
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -115,7 +117,7 @@ IF "%USMTUser%"=="AllUsers" (
   SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
-IF "%USMTUserEx%"=="Yes" (
+IF /I "%USMTUserEx%"=="Yes" (
   SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
 ) ELSE (
   SET USMTUserCmd=%USMTUeSwitch%*\%USMTTech%

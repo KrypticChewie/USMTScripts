@@ -34,6 +34,8 @@ REM Version: 1.3.2 (2020-02-12)
 REM Added exclusion of logged in user
 REM Version: 1.3.3 (2020-02-14)
 REM Added architecture automatically set (Itanium will exit the script) and domain detection
+REM Version: 1.3.3 (2020-02-18)
+REM Made if statements case insensitive, for prompt.  Does not give user selection for offline scan (this is not yet supported)
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -87,8 +89,8 @@ REM Sets the path of the USMT as the current folder.
 SET USMTPath=%~dp0
 
 REM Sets the user to be selected.
-SET /P USMTUser=User (Default=AllUsers):
-IF NOT DEFINED USMTUser SET USMTUser=AllUsers
+REM SET /P USMTUser=User (Default=AllUsers):
+REM IF NOT DEFINED USMTUser SET USMTUser=AllUsers
 
 IF %USMTArch%=="IA64" (
   ECHO. USMT is not compatible with Itanium
@@ -107,9 +109,13 @@ SET /P USMTUseOff=Offline Scan? (Options=Yes No Default=No):
 IF NOT DEFINED USMTUseOff SET USMTUseOff=No
 
 REM Sets offline Windows folder path
-IF "%USMTUseOff%"=="Yes" (
+IF /I "%USMTUseOff%"=="Yes" (
   SET /P USMTOffDrive=Offline Windows Drive ^(E.g. X Default=C^):
   IF NOT DEFINED USMTOffDrive SET USMTOffDrive=C
+) ELSE (
+  REM Sets the user to be selected.
+  SET /P USMTUser=User ^(Default=AllUsers^):
+  IF NOT DEFINED USMTUser SET USMTUser=AllUsers
 )
 
 REM Sets exclude scanning of logged in user.
@@ -128,7 +134,7 @@ IF "%USMTUser%"=="AllUsers" (
   SET USMTLog=/l:"%~dp0..\Logs\Scans\%USMTUser%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
-IF "%USMTUserEx%"=="Yes" (
+IF /I "%USMTUserEx%"=="Yes" (
   SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
 ) ELSE (
   SET USMTUserCmd=%USMTUeSwitch%*\%USMTTech%
@@ -136,7 +142,7 @@ IF "%USMTUserEx%"=="Yes" (
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
 SET USMTOvrWr=/o
-IF "%USMTUseOff%"=="Yes" (
+IF /I "%USMTUseOff%"=="Yes" (
   SET USMTOffCmd=%USMTOffSwitch%%USMTOffDrive%%USMTOffPath%
 )
 REM *******************
