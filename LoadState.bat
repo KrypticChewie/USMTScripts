@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.2.4 (2020-02-24)
+REM Version: 1.2.5 (2020-02-24)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -35,6 +35,8 @@ REM Version: 1.2.3 (2020-02-18)
 REM Made if statements case insensitive, for prompt.
 REM Version: 1.2.4 (2020-02-24)
 REM Added date and time to log file name.
+REM Version: 1.2.5 (2020-02-24)
+REM Added detection for USMT path.
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -98,6 +100,13 @@ IF %USMTArch%=="IA64" (
 
 REM Sets the path for the appropriate architecture executable.
 SET USMTRunPath=%~dp0%USMTArch%
+
+REM Check if path exists and exits script if not.
+IF NOT EXIST %USMTRunPath%\Nul (
+  ECHO.USMT executable for %USMTArch% architecture not found.
+  pause
+  EXIT /B
+)
 
 REM Sets exclude scanning of logged in user.
 SET /P USMTUserEx=Exclude logged in user? (Options=Yes No Default=Yes):
