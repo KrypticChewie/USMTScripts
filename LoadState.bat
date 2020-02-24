@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.2.2 (2020-02-14)
+REM Version: 1.2.4 (2020-02-24)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -33,6 +33,8 @@ REM Version: 1.2.2 (2020-02-14)
 REM Added architecture automatically set (Itanium will exit the script) and domain detection
 REM Version: 1.2.3 (2020-02-18)
 REM Made if statements case insensitive, for prompt.
+REM Version: 1.2.4 (2020-02-24)
+REM Added date and time to log file name.
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -111,10 +113,10 @@ SET USMTProc=loadstate
 IF "%USMTUser%"=="AllUsers" (
   SET /P USMTPCName=PCName:
   SET USMTStore="%~dp0..\Data\!USMTPCName!"
-  SET USMTLog=/l:"%~d0..\Logs\Loads\!USMTPCName!.log"
+  SET USMTLog=/l:"%~d0..\Logs\Loads\!USMTPCName! - %DATE% %TIME%.log"
 ) ELSE (
   SET USMTStore="%~dp0..\Data\%USMTUser%"
-  SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser%.log"
+  SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser% - %DATE% %TIME%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (

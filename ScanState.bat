@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.3.3 (2020-02-14)
+REM Version: 1.3.4 (2020-02-24)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -36,6 +36,8 @@ REM Version: 1.3.3 (2020-02-14)
 REM Added architecture automatically set (Itanium will exit the script) and domain detection
 REM Version: 1.3.3 (2020-02-18)
 REM Made if statements case insensitive, for prompt.  Does not give user selection for offline scan (this is not yet supported)
+REM Version: 1.3.4 (2020-02-24)
+REM Added date and time to log file name.
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -128,10 +130,10 @@ REM *******************
 SET USMTProc=scanstate
 IF "%USMTUser%"=="AllUsers" (
   SET USMTStore="%~dp0..\Data\%ComputerName%"
-  SET USMTLog=/l:"%~dp0..\Logs\Scans\%ComputerName%.log"
+  SET USMTLog=/l:"%~dp0..\Logs\Scans\%ComputerName% - %DATE% %TIME%.log"
 ) ELSE (
   SET USMTStore="%~dp0..\Data\%USMTUser%"
-  SET USMTLog=/l:"%~dp0..\Logs\Scans\%USMTUser%.log"
+  SET USMTLog=/l:"%~dp0..\Logs\Scans\%USMTUser% - %DATE% %TIME%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
