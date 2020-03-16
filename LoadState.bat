@@ -37,6 +37,9 @@ REM Version: 1.2.4 (2020-02-24)
 REM Added date and time to log file name.
 REM Version: 1.2.5 (2020-02-24)
 REM Added detection for USMT path.
+REM Version: 1.2.6 (2020-03-16)
+REM Fixed timestamp in log file throwing error when "/" is used as the separator
+REM Fixed an error with the path for the log file
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -115,6 +118,11 @@ IF NOT DEFINED USMTUserEx SET USMTUserEx=Yes
 REM Changes current folder to appropriate architecture executable.
 pushd %USMTRunPath%
 
+REM Sets the date and time aspect of the log file and changes / and : to -
+SET LogStamp=%DATE% %TIME%
+SET LogStamp=%LogStamp:/=-%
+SET LogStamp=%LogStamp::=-%
+
 
 REM Command parts
 REM *******************
@@ -122,10 +130,10 @@ SET USMTProc=loadstate
 IF "%USMTUser%"=="AllUsers" (
   SET /P USMTPCName=PCName:
   SET USMTStore="%~dp0..\Data\!USMTPCName!"
-  SET USMTLog=/l:"%~d0..\Logs\Loads\!USMTPCName! - %DATE% %TIME%.log"
+  SET USMTLog=/l:"%~dp0..\Logs\Loads\!USMTPCName! - %LogStamp%.log"
 ) ELSE (
   SET USMTStore="%~dp0..\Data\%USMTUser%"
-  SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser% - %DATE% %TIME%.log"
+  SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser% - %LogStamp%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
