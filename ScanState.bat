@@ -42,6 +42,9 @@ REM Version: 1.3.5 (2020-02-24)
 REM Added detection for USMT path.
 REM Version: 1.3.6 (2020-03-16)
 REM Fixed timestamp in log file throwing error when "/" is used as the separator
+REM Version: 1.4.0 (2020-07-21)
+REM Fixed a mixup between the variables used for the user include and excude switches
+REM Added selection of inclusion or exclusion of local users for scanning all users only
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -65,8 +68,9 @@ SET USMTRunPath=%~dp0%USMTArch%
 SET USMTOffSwitch=/offlineWinDir:
 SET USMTOffPath=:\Windows\
 SET USMTTech=%USERNAME%
-SET USMTUiSwitch=/ue:
-SET USMTUeSwitch=/ui:
+SET USMTUeSwitch=/ue:
+SET USMTUiSwitch=/ui:
+SET USMTThisPCName=%COMPUTERNAME%
 REM ******************************************************************************************
 
 
@@ -135,6 +139,10 @@ REM Sets exclude scanning of logged in user.
 SET /P USMTUserEx=Exclude logged in user? (Options=Yes No Default=Yes):
 IF NOT DEFINED USMTUserEx SET USMTUserEx=Yes
 
+REM Sets exclude scanning of local users.
+SET /P USMTLocalsEx=Exclude local users? (Options=Yes No Default=Yes):
+IF NOT DEFINED USMTLocalsEx SET USMTLocalsEx=Yes
+
 REM Sets the date and time aspect of the log file and changes / to -
 SET LogStamp=%DATE% %TIME%
 SET LogStamp=%LogStamp:/=-%
@@ -153,9 +161,14 @@ IF "%USMTUser%"=="AllUsers" (
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
-  SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
-) ELSE (
   SET USMTUserCmd=%USMTUeSwitch%*\%USMTTech%
+) ELSE (
+  SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
+)
+IF /I "%USMTLocalsEx%"=="Yes" (
+  SET USMTLocalsExCmd=%USMTUeSwitch%%USMTThisPCName%\*
+) ELSE (
+  SET USMTLocalsExCmd=%USMTUiSwitch%%USMTThisPCName%\*
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
@@ -168,9 +181,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	%USMTProc% %USMTStore% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+	%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
 ) ELSE (
-  %USMTProc% %USMTStore% %USMTUserSel% %USMTUserCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+  %USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
   )
 )
 

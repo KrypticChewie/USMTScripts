@@ -40,6 +40,10 @@ REM Added detection for USMT path.
 REM Version: 1.2.6 (2020-03-16)
 REM Fixed timestamp in log file throwing error when "/" is used as the separator
 REM Fixed an error with the path for the log file
+REM Version: 1.3.0 (2020-07-21)
+REM Fixed a mixup between the variables used for the user include and excude switches
+REM Added selection of inclusion or exclusion of local users for loading all users only
+REM   Note: Loading local accounts that are not already on the target will fail (no /lac)
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -62,8 +66,9 @@ SET USMTArch=%PROCESSOR_ARCHITECTURE%
 SET USMTRunPath=%~dp0%USMTArch%
 SET USMTPCName=NoPCName
 SET USMTTech=%USERNAME%
-SET USMTUiSwitch=/ue:
-SET USMTUeSwitch=/ui:
+SET USMTUeSwitch=/ue:
+SET USMTUiSwitch=/ui:
+SET USMTThisPCName=%COMPUTERNAME%
 REM ******************************************************************************************
 
 
@@ -111,9 +116,13 @@ IF NOT EXIST %USMTRunPath%\Nul (
   EXIT /B
 )
 
-REM Sets exclude scanning of logged in user.
+REM Sets exclude loading of logged in user.
 SET /P USMTUserEx=Exclude logged in user? (Options=Yes No Default=Yes):
 IF NOT DEFINED USMTUserEx SET USMTUserEx=Yes
+
+REM Sets exclude loading of local users.
+SET /P USMTLocalsEx=Exclude local users? (Options=Yes No Default=Yes):
+IF NOT DEFINED USMTLocalsEx SET USMTLocalsEx=Yes
 
 REM Changes current folder to appropriate architecture executable.
 pushd %USMTRunPath%
@@ -137,9 +146,14 @@ IF "%USMTUser%"=="AllUsers" (
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
-  SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
-) ELSE (
   SET USMTUserCmd=%USMTUeSwitch%*\%USMTTech%
+) ELSE (
+  SET USMTUserCmd=%USMTUiSwitch%*\%USMTTech%
+)
+IF /I "%USMTLocalsEx%"=="Yes" (
+  SET USMTLocalsExCmd=%USMTUeSwitch%%USMTPCName%\*
+) ELSE (
+  SET USMTLocalsExCmd=%USMTUiSwitch%%USMTPCName%\*
 )
 SET USMTXml=/i:migdocs.xml /i:migapp.xml
 SET USMTOvrWr=/o
@@ -148,9 +162,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	%USMTProc% %USMTStore% %USMTUserCmd% %USMTXml% %USMTLog%
+	%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTLog%
 ) ELSE (
-	%USMTProc% %USMTStore% %USMTUserSel% %USMTUserCmd% %USMTXml% %USMTLog%
+	%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog%
 )
 
 REM Reverts currnet folder to initial folder.
