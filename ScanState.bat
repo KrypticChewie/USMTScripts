@@ -45,6 +45,11 @@ REM Fixed timestamp in log file throwing error when "/" is used as the separator
 REM Version: 1.4.0 (2020-07-21)
 REM Fixed a mixup between the variables used for the user include and excude switches
 REM Added selection of inclusion or exclusion of local users for scanning all users only
+REM Version: 1.4.1 (2020-07-29)
+REM Error dectection added for no administrative access
+REM   Not mitigation at the moment, just a message that shows up after the normal USMT error
+REM Error dection added for no errors
+REM   A message is displayed
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -71,6 +76,7 @@ SET USMTTech=%USERNAME%
 SET USMTUeSwitch=/ue:
 SET USMTUiSwitch=/ui:
 SET USMTThisPCName=%COMPUTERNAME%
+SET USMTCmd=NoCmd
 REM ******************************************************************************************
 
 
@@ -181,11 +187,29 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
 ) ELSE (
-  %USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+  SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
   )
 )
+
+%USMTCmd%
+REM *******************
+
+REM *******************
+REM Error handling for Scanstate executable
+REM *******************
+
+REM No errors were detected
+IF "%ErrorLevel%"=="0" (
+  ECHO The operation was completed with no errors reported
+)
+
+REM Detected no admin rights
+IF "%ErrorLevel%"=="34" (
+  ECHO You need to start the script with administrative rights
+)
+REM *******************
 
 REM Reverts currnet folder to initial folder.
 popd
