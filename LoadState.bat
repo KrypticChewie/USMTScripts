@@ -51,6 +51,12 @@ REM Error dectection added for local accounts detected in loading process
 REM   You can select if to load them, /lac will be added
 REM Error dection added for no errors
 REM   A message is displayed
+REM Version: 1.4.0 (2020-08-23)
+REM Added detection for OS type and exits if OS type is not Workstation
+REM Added detection for XP
+REM   If XP is detected the Windows 8 version of USMT will be used
+REM   This requires the script to be run from root folder of all the USMT folders
+REM     Support has been provided if it is in the previous location but will be removed later
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -77,6 +83,12 @@ SET USMTUeSwitch=/ue:
 SET USMTUiSwitch=/ui:
 SET USMTThisPCName=%COMPUTERNAME%
 SET USMTCmd=NoCmd
+SET USMTOSType=NotDetected
+SET USMTOSVer=NotDetected
+SET USMTLegacyPath=NotDetected
+SET USMTWin08Folder=USMT80
+SET USMTWin10Folder=USMT10
+SET USMTVerFolder=NotDetected
 REM ******************************************************************************************
 
 
@@ -97,29 +109,90 @@ ECHO.
 REM ******************************************************************************************
 
 
+REM Finds and sets the OS type
+FOR /F "tokens=2 delims==*" %%A IN ('wmic os get producttype^ /Value ^| findstr "[0-9P]"') DO (
+	SET OSTYPE=%%A
+)
+SET USMTOSType=%OSTYPE%
+
+REM Checks if OS type is workstation and exits if not
+IF NOT "%USMTOSType%"=="1" (
+	ECHO.USMT does not support server versions of Windows
+	pause 
+	EXIT /B
+)
+
 REM Set domain to be used.  Will use NPNT is nothing is set.
 SET /P USMTDomain=Domain ^(Detected=%USERDOMAIN%^):
 IF NOT DEFINED USMTDomain SET USMTDomain=%USERDOMAIN%
-
-REM Sets the path of the USMT as the current folder.
-SET USMTPath=%~dp0
 
 REM Sets the user to be selected.
 SET /P USMTUser=User (Default=AllUsers):
 IF NOT DEFINED USMTUser SET USMTUser=AllUsers
 
+REM Checks for Itanium architecture and exits if detected as USMT doesn't support it
 IF %USMTArch%=="IA64" (
-  ECHO. USMT is not compatible with Itanium
+  ECHO.USMT is not compatible with Itanium
   pause
   EXIT /B
 )
 
+REM Checks if script path is the old location in sub folder
+REM Script should be in root, not in the sub folder
+IF NOT EXIST %USMTPath%%USMTWin10Folder%\Nul (
+	SET USMTLegacyPath=Yes
+) ELSE (
+	SET USMTLegacyPath=No
+)
+
+
+REM Checks if USMT path is the root or old location in sub folder
+REM If in sub folder USMT path is set to folder above
+IF "%USMTLegacyPath%"=="Yes" (
+	SET USMTPath=%USMTPath%..\
+)
+
+REM Finds Windows version
+REM From https://ss64.com/nt/ver.html
+For /f "tokens=4,5,6 delims=[]. " %%G in ('ver') Do (set _major=%%G& set _minor=%%H& set _build=%%I) 
+
+REM Sets the USMT version for the appropriate architecture executable
+REM Exits if version before Windows XP is detcted
+IF %_major%==5 (
+	SET USMTOSVer=Win 8
+) ELSE (
+	IF %_major% LSS 5 (
+		ECHO.USMT does not support versions before Windows XP
+  		pause
+  		EXIT /B
+	) ELSE (
+		SET USMTOSVer=Win 10
+  )
+)
+
+REM Sets folder name for USMT for detected Windows version
+IF "%USMTOSVer%"=="Win 10" (
+	SET USMTVerFolder=%USMTWin10Folder%
+) ELSE (
+	IF "%USMTOSVer%"=="Win 8" (
+		SET USMTVerFolder=%USMTWin08Folder%
+	)
+)
+
 REM Sets the path for the appropriate architecture executable.
-SET USMTRunPath=%~dp0%USMTArch%
+IF "%USMTLegacyPath%"=="No" (
+	SET USMTRunPath=%~dp0%USMTVerFolder%\%USMTArch%
+) ELSE (
+	ECHO.Script seems to be running from old location
+	ECHO.Script should be in the root folder of all USMT folders, as at version 1.4.0
+	ECHO.Script should be in the root folder of all USMT folders, as at version 1.5.0
+	ECHO.Script will attempt running using legacy paths
+	SET USMTRunPath=%~dp0%USMTArch%
+)
 
 REM Check if path exists and exits script if not.
 IF NOT EXIST %USMTRunPath%\Nul (
-  ECHO.USMT executable for %USMTArch% architecture not found.
+  ECHO.USMT executable for %USMTOSVer% version and %USMTArch% architecture not found.
   pause
   EXIT /B
 )
@@ -146,11 +219,11 @@ REM *******************
 SET USMTProc=loadstate
 IF "%USMTUser%"=="AllUsers" (
   SET /P USMTPCName=PCName:
-  SET USMTStore="%~dp0..\Data\!USMTPCName!"
-  SET USMTLog=/l:"%~dp0..\Logs\Loads\!USMTPCName! - %LogStamp%.log"
+  SET USMTStore="%USMTPath%Data\!USMTPCName!"
+  SET USMTLog=/l:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp%.log"
 ) ELSE (
-  SET USMTStore="%~dp0..\Data\%USMTUser%"
-  SET USMTLog=/l:"%~dp0..\Logs\Loads\%USMTUser% - %LogStamp%.log"
+  SET USMTStore="%USMTPath%Data\%USMTUser%"
+  SET USMTLog=/l:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
