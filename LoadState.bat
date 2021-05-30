@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.4.0 (2020-08-23)
+REM Version: 1.4.1 (2021-05-30)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -57,6 +57,8 @@ REM Added detection for XP
 REM   If XP is detected the Windows 8 version of USMT will be used
 REM   This requires the script to be run from root folder of all the USMT folders
 REM     Support has been provided if it is in the previous location but will be removed later
+REM Version: 1.4.1 (2021-05-30)
+REM Added support for paths with spaces
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -139,7 +141,7 @@ IF %USMTArch%=="IA64" (
 
 REM Checks if script path is the old location in sub folder
 REM Script should be in root, not in the sub folder
-IF NOT EXIST %USMTPath%%USMTWin10Folder%\Nul (
+IF NOT EXIST "%USMTPath%%USMTWin10Folder%\" (
 	SET USMTLegacyPath=Yes
 ) ELSE (
 	SET USMTLegacyPath=No
@@ -191,7 +193,7 @@ IF "%USMTLegacyPath%"=="No" (
 )
 
 REM Check if path exists and exits script if not.
-IF NOT EXIST %USMTRunPath%\Nul (
+IF NOT EXIST "%USMTRunPath%\" (
   ECHO.USMT executable for %USMTOSVer% version and %USMTArch% architecture not found.
   pause
   EXIT /B
