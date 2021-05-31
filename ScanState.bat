@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.5.1 (2021-05-30)
+REM Version: 1.5.2 (2021-05-30)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
