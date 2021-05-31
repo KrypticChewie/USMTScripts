@@ -58,6 +58,14 @@ REM   This requires the script to be run from root folder of all the USMT folder
 REM     Support has been provided if it is in the previous location but will be removed later
 REM Version: 1.5.1 (2021-05-30)
 REM Added support for paths with spaces
+REM Version: 1.5.2 (2021-05-30)
+REM Error dection added for only non-fatal errors
+REM   If this is detected a prompt will ask if to retry skipping non-fatal errors
+REM   A message is displayed for successful completion when /c is used (different return code)
+REM Volume Shadow Copy switch (/vsc) added
+REM   This will use volume shadow copy to copy locked files
+REM Added parameter support
+REM   Whatever is typed as a parameter of the script will be appended to end of the USMT command
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -91,6 +99,7 @@ SET USMTLegacyPath=NotDetected
 SET USMTWin08Folder=USMT80
 SET USMTWin10Folder=USMT10
 SET USMTVerFolder=NotDetected
+SET USMTVscSwitch=/vsc
 REM ******************************************************************************************
 
 
@@ -257,9 +266,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd% %USMTVscSwitch% %1
 ) ELSE (
-  SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd%
+  SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTOvrWr% %USMTLog% %USMTOffCmd% %USMTVscSwitch% %1
   )
 )
 
@@ -275,9 +284,23 @@ IF "%ErrorLevel%"=="0" (
   ECHO The operation was completed with no errors reported
 )
 
+REM Non fatal errors were detected and skipped as /c was selected
+IF "%ErrorLevel%"=="3" (
+  ECHO The operation was completed with only non-fatal errors reported
+)
+
 REM Detected no admin rights
 IF "%ErrorLevel%"=="34" (
   ECHO You need to start the script with administrative rights
+)
+
+REM Detected stop due to non-fatal errors
+IF "%ErrorLevel%"=="61" (
+  SET /P USMTSkipNonFatal=Try again skipping errors? ^(Options=Yes No Default=No^):
+  IF NOT DEFINED USMTSkipNonFatal SET USMTSkipNonFatal=No
+)
+IF /I "%USMTSkipNonFatal%"=="Yes" (
+  %USMTCmd% /c
 )
 REM *******************
 

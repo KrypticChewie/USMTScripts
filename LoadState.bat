@@ -59,6 +59,12 @@ REM   This requires the script to be run from root folder of all the USMT folder
 REM     Support has been provided if it is in the previous location but will be removed later
 REM Version: 1.4.1 (2021-05-30)
 REM Added support for paths with spaces
+REM Version: 1.4.2 (2021-05-30)
+REM Error dection added for only non-fatal errors
+REM   If this is detected a prompt will ask if to retry skipping non-fatal errors
+REM   A message is displayed for successful completion when /c is used (different return code)
+REM Added parameter support
+REM   Whatever is typed as a paramter of the script will be appended to end of the USMT command
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -246,9 +252,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTLog%
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTLog% %1
 ) ELSE (
-	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog%
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog% %1
 )
 
 %USMTCmd%
@@ -261,6 +267,11 @@ REM *******************
 REM No errors were detected
 IF "%ErrorLevel%"=="0" (
   ECHO The operation was completed with no errors reported
+)
+
+REM Non fatal errors were detected and skipped as /c was selected
+IF "%ErrorLevel%"=="3" (
+  ECHO The operation was completed with only non-fatal errors reported
 )
 
 REM Detected no admin rights
@@ -277,7 +288,14 @@ IF /I "%USMTLoadLocal%"=="Yes" (
   %USMTCmd% /lac
 )
 
-
+REM Detected stop due to non-fatal errors
+IF "%ErrorLevel%"=="61" (
+  SET /P USMTSkipNonFatal=Try again skipping errors? ^(Options=Yes No Default=No^):
+  IF NOT DEFINED USMTSkipNonFatal SET USMTSkipNonFatal=No
+)
+IF /I "%USMTSkipNonFatal%"=="Yes" (
+  %USMTCmd% /c
+)
 REM *******************
 
 REM Reverts currnet folder to initial folder.
