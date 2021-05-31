@@ -55,7 +55,7 @@ REM Detects OS type and exits if OS type is not Workstation
 REM Added detection for XP
 REM   If XP is detected the Windows 8 version of USMT will be used
 REM   This requires the script to be run from root folder of all the USMT folders
-REM     Support has been provided if it is in the previous location but will be removed later
+REM   Support has been provided if it is in the previous location but will be removed later
 REM Version: 1.5.1 (2021-05-30)
 REM Added support for paths with spaces
 REM Version: 1.5.2 (2021-05-30)
@@ -66,10 +66,13 @@ REM Volume Shadow Copy switch (/vsc) added
 REM   This will use volume shadow copy to copy locked files
 REM Added parameter support
 REM   Whatever is typed as a parameter of the script will be appended to end of the USMT command
+REM Version: 1.5.3 (2021-05-31)
+REM Added setting of a custom store location
+REM		The path supplied must be to another USMT folder with a data folder as the store
+REM   The path supplied must have a \ at the end
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
-REM TODO: Add option for setting store path
 REM TODO: Add procedure for changing defaults without creating too many options
 REM ******************************************************************************************
 REM BUG: Does not work when run from network because of path (Seems to work on XP)
@@ -99,7 +102,8 @@ SET USMTLegacyPath=NotDetected
 SET USMTWin08Folder=USMT80
 SET USMTWin10Folder=USMT10
 SET USMTVerFolder=NotDetected
-SET USMTVscSwitch=/vsc
+SET USMTUseAltUSMTPath=NotSet
+SET USMTAltUSMTPath=%USMTPath%
 REM ******************************************************************************************
 
 
@@ -225,6 +229,10 @@ REM Sets exclude scanning of local users.
 SET /P USMTLocalsEx=Exclude local users? (Options=Yes No Default=Yes):
 IF NOT DEFINED USMTLocalsEx SET USMTLocalsEx=Yes
 
+REM Sets using custom store location.
+SET /P USMTUseAltUSMTPath=Sets custom store location? (Options=Yes No Default=Yes):
+IF NOT DEFINED USMTUseAltUSMTPath SET USMTUseAltUSMTPath=No
+
 REM Changes current folder to appropriate architecture executable.
 pushd %USMTRunPath%
 
@@ -237,11 +245,24 @@ SET LogStamp=%LogStamp::=-%
 REM Command parts
 REM *******************
 SET USMTProc=scanstate
+
+REM Checks if custom store path was selected and prompts for path.
+REM If no path is given the current USMT path is used.
+IF /I "%USMTUseAltUSMTPath%"=="Yes" (
+  SET /P USMTStorePath=Set custom store path to data folder ^(Include ending \^):
+)
+IF NOT DEFINED USMTStorePath SET USMTStorePath=%USMTPath%
+IF NOT EXIST "%USMTStorePath%" (
+	ECHO Custom path not valid or accessible
+	ECHO Using current path
+	SET USMTStorePath=%USMTPath%
+)
+
 IF "%USMTUser%"=="AllUsers" (
-  SET USMTStore="%USMTPath%Data\%ComputerName%"
+  SET USMTStore="%USMTStorePath%Data\%ComputerName%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp%.log"
 ) ELSE (
-  SET USMTStore="%USMTPath%Data\%USMTUser%"
+  SET USMTStore="%USMTStorePath%Data\%USMTUser%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%USMTUser% - %LogStamp%.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
