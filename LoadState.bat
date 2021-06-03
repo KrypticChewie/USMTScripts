@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.4.3 (2021-05-31)
+REM Version: 1.5.0 (2021-06-03)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -69,6 +69,8 @@ REM Version: 1.4.3 (2021-05-31)
 REM Added setting of a custom store location
 REM	  The path supplied must be to another USMT folder with a data folder as the store
 REM   The path supplied must have a \ at the end
+REM Version: 1.5.0 (2021-06-03)
+REM   Added scan store before load to verify catalog file
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -251,9 +253,13 @@ IF "%USMTUser%"=="AllUsers" (
   SET /P USMTPCName=PCName:
   SET USMTStore="%USMTStorePath%Data\!USMTPCName!"
   SET USMTLog=/l:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp%.log"
+  SET USMTUtilStoreDir=%USMTStorePath%Data\!USMTPCName!
+  SET USMTUtilLog=/l:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp% - Verify.log"
 ) ELSE (
   SET USMTStore="%USMTStorePath%Data\%USMTUser%"
   SET USMTLog=/l:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp%.log"
+  SET USMTUtilStoreDir=%USMTStorePath%Data\%USMTUser%
+  SET USMTUtilLog=/l:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp% - Verify.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
@@ -279,7 +285,46 @@ IF "%USMTUser%"=="AllUsers" (
 	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog% %1
 )
 
-%USMTCmd%
+REM *******************
+REM USMTUtils Command parts
+REM *******************
+SET USMTUtilProc=usmtutils
+SET USMTUtilVerify=/verify:catalog
+SET USMTUtilStore="%USMTUtilStoreDir%\USMT\USMT.mig"
+REM *******************
+
+REM *******************
+REM The actual USMTUtils command.
+REM *******************
+SET USMTUtilCmd=%USMTUtilProc% %USMTUtilVerify% %USMTUtilStore% %USMTUtilLog%
+REM *******************
+
+REM *******************
+REM Running the USMTUtils command
+echo %USMTUtilCmd%
+REM *******************
+
+
+REM *******************
+REM Error handling for USMTUtils executable
+REM *******************
+
+REM No errors were detected
+IF "%ErrorLevel%"=="0" (
+  ECHO The store file catalog was successfully verified with no errors
+)
+
+REM Catalog file was found to be corrupt
+IF "%ErrorLevel%"=="42" (
+  ECHO The store file catalog was found to be corrupt
+  ECHO This could be an access issue
+  pause
+  EXIT /B
+)
+
+REM *******************
+REM Running the command
+echo %USMTCmd%
 REM *******************
 
 REM *******************

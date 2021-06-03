@@ -1,6 +1,6 @@
 REM ******************************************************************************************
 REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.5.3 (2021-05-31)
+REM Version: 1.6.0 (2021-06-03)
 REM Created By: Kris Deen (KrpyticChewie)
 REM ******************************************************************************************
 
@@ -70,6 +70,8 @@ REM Version: 1.5.3 (2021-05-31)
 REM Added setting of a custom store location
 REM		The path supplied must be to another USMT folder with a data folder as the store
 REM   The path supplied must have a \ at the end
+REM Version: 1.6.0 (2021-06-03)
+REM   Added scan store after scan to verify catalog file
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -261,9 +263,13 @@ IF NOT EXIST "%USMTStorePath%" (
 IF "%USMTUser%"=="AllUsers" (
   SET USMTStore="%USMTStorePath%Data\%ComputerName%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp%.log"
+  SET USMTUtilStoreDir=%USMTStorePath%Data\%ComputerName%
+  SET USMTUtilLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp%.log"
 ) ELSE (
   SET USMTStore="%USMTStorePath%Data\%USMTUser%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%USMTUser% - %LogStamp%.log"
+  SET USMTUtilStoreDir=%USMTStorePath%Data\%USMTUser%
+  SET USMTUtilLog=/l:"%USMTPath%Logs\Scans\%USMTUser% - %LogStamp% - Verify.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
@@ -293,6 +299,22 @@ IF "%USMTUser%"=="AllUsers" (
   )
 )
 
+REM *******************
+REM USMTUtils Command parts
+REM *******************
+SET USMTUtilProc=usmtutils
+SET USMTUtilVerify=/verify:catalog
+SET USMTUtilStore="%USMTUtilStoreDir%\USMT\USMT.mig"
+REM *******************
+
+REM *******************
+REM The actual USMTUtils command.
+REM *******************
+SET USMTUtilCmd=%USMTUtilProc% %USMTUtilVerify% %USMTUtilStore% %USMTUtilLog%
+REM *******************
+
+REM *******************
+REM Running the command
 %USMTCmd%
 REM *******************
 
@@ -324,6 +346,29 @@ IF /I "%USMTSkipNonFatal%"=="Yes" (
   %USMTCmd% /c
 )
 REM *******************
+
+REM *******************
+REM Running the USMTUtils command
+echo %USMTUtilCmd%
+REM *******************
+
+
+REM *******************
+REM Error handling for USMTUtils executable
+REM *******************
+
+REM No errors were detected
+IF "%ErrorLevel%"=="0" (
+  ECHO The store file catalog was successfully verified with no errors
+)
+
+REM Catalog file was found to be corrupt
+IF "%ErrorLevel%"=="42" (
+  ECHO The store file catalog was found to be corrupt
+  ECHO This could be an access issue
+  pause
+  EXIT /B
+)
 
 REM Reverts currnet folder to initial folder.
 popd
