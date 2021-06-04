@@ -301,7 +301,7 @@ REM *******************
 
 REM *******************
 REM Running the USMTUtils command
-echo %USMTUtilCmd%
+%USMTUtilCmd%
 REM *******************
 
 
