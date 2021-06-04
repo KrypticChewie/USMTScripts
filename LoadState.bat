@@ -324,7 +324,7 @@ IF "%ErrorLevel%"=="42" (
 
 REM *******************
 REM Running the command
-echo %USMTCmd%
+%USMTCmd%
 REM *******************
 
 REM *******************

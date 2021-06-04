@@ -264,7 +264,7 @@ IF "%USMTUser%"=="AllUsers" (
   SET USMTStore="%USMTStorePath%Data\%ComputerName%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp%.log"
   SET USMTUtilStoreDir=%USMTStorePath%Data\%ComputerName%
-  SET USMTUtilLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp%.log"
+  SET USMTUtilLog=/l:"%USMTPath%Logs\Scans\%ComputerName% - %LogStamp% - Verify.log"
 ) ELSE (
   SET USMTStore="%USMTStorePath%Data\%USMTUser%"
   SET USMTLog=/l:"%USMTPath%Logs\Scans\%USMTUser% - %LogStamp%.log"
@@ -349,7 +349,7 @@ REM *******************
 
 REM *******************
 REM Running the USMTUtils command
-echo %USMTUtilCmd%
+%USMTUtilCmd%
 REM *******************
 
 
