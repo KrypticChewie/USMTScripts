@@ -1,10 +1,10 @@
-REM ******************************************************************************************
-REM This script will take a username and a domain name and run scanstate against that user
-REM Version: 1.6.0 (2021-06-03)
-REM Created By: Kris Deen (KrpyticChewie)
-REM ******************************************************************************************
+@ECHO OFF
 
-ECHO OFF
+ECHO ******************************************************************************************
+ECHO This script will take a username and a domain name and run scanstate against that user
+ECHO Version: 1.6.1 (2021-06-05)
+ECHO Created By: Kris Deen (KrpyticChewie)
+ECHO ******************************************************************************************
 
 REM ******************************************************************************************
 REM Revisions:
@@ -72,12 +72,13 @@ REM		The path supplied must be to another USMT folder with a data folder as the 
 REM   The path supplied must have a \ at the end
 REM Version: 1.6.0 (2021-06-03)
 REM   Added scan store after scan to verify catalog file
+REM Version: 1.6.1 (2021-06-05)
+REM   Improved layout messages from scanstate and usmtutils
+REM   Added messages from scanstate and usmtutils to variables
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
 REM TODO: Add procedure for changing defaults without creating too many options
-REM ******************************************************************************************
-REM BUG: Does not work when run from network because of path (Seems to work on XP)
 REM ******************************************************************************************
 
 
@@ -106,6 +107,8 @@ SET USMTWin10Folder=USMT10
 SET USMTVerFolder=NotDetected
 SET USMTUseAltUSMTPath=NotSet
 SET USMTAltUSMTPath=%USMTPath%
+SET USMTMessage=NoMessageSet
+SET USMTUtilMessage=NoMessageSet
 REM ******************************************************************************************
 
 
@@ -324,17 +327,17 @@ REM *******************
 
 REM No errors were detected
 IF "%ErrorLevel%"=="0" (
-  ECHO The operation was completed with no errors reported
+  SET USMTMessage=The operation was completed with no errors reported
 )
 
 REM Non fatal errors were detected and skipped as /c was selected
 IF "%ErrorLevel%"=="3" (
-  ECHO The operation was completed with only non-fatal errors reported
+  SET USMTMessage=The operation was completed with only non-fatal errors reported
 )
 
 REM Detected no admin rights
 IF "%ErrorLevel%"=="34" (
-  ECHO You need to start the script with administrative rights
+  SET USMTMessage=You need to start the script with administrative rights
 )
 
 REM Detected stop due to non-fatal errors
@@ -346,6 +349,12 @@ IF /I "%USMTSkipNonFatal%"=="Yes" (
   %USMTCmd% /c
 )
 REM *******************
+
+ECHO.
+ECHO.
+ECHO %USMTMessage%
+ECHO.
+ECHO.
 
 REM *******************
 REM Running the USMTUtils command
@@ -359,7 +368,7 @@ REM *******************
 
 REM No errors were detected
 IF "%ErrorLevel%"=="0" (
-  ECHO The store file catalog was successfully verified with no errors
+  SET USMTUtilMessage=The store file catalog was successfully verified with no errors
 )
 
 REM Catalog file was found to be corrupt
@@ -369,6 +378,14 @@ IF "%ErrorLevel%"=="42" (
   pause
   EXIT /B
 )
+
+ECHO.
+ECHO.
+ECHO %USMTMessage%
+ECHO.
+ECHO.
+ECHO %USMTUtilMessage%
+ECHO.
 
 REM Reverts currnet folder to initial folder.
 popd

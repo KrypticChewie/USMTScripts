@@ -1,10 +1,10 @@
-REM ******************************************************************************************
-REM This script will take a username and a domain name and run loadstate against that user
-REM Version: 1.5.0 (2021-06-03)
-REM Created By: Kris Deen (KrpyticChewie)
-REM ******************************************************************************************
+@ECHO OFF
 
-ECHO OFF
+ECHO ******************************************************************************************
+ECHO This script will take a username and a domain name and run loadstate against that user
+ECHO Version: 1.5.0 (2021-06-03)
+ECHO Created By: Kris Deen (KrpyticChewie)
+ECHO ******************************************************************************************
 
 REM ******************************************************************************************
 REM Revisions:
@@ -71,12 +71,13 @@ REM	  The path supplied must be to another USMT folder with a data folder as the
 REM   The path supplied must have a \ at the end
 REM Version: 1.5.0 (2021-06-03)
 REM   Added scan store before load to verify catalog file
+REM Version: 1.5.1 (2021-06-05)
+REM   Improved layout messages from loadstate and usmtutils
+REM   Added messages from loadstate and usmtutils to variables
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
 REM TODO: Add procedure for changing defaults without creating too many options
-REM ******************************************************************************************
-REM BUG: Cannot pull a particular user from a store with a different store name
 REM ******************************************************************************************
 
 
@@ -104,6 +105,8 @@ SET USMTWin10Folder=USMT10
 SET USMTVerFolder=NotDetected
 SET USMTUseAltUSMTPath=NotSet
 SET USMTAltUSMTPath=%USMTPath%
+SET USMTMessage=NoMessageSet
+SET USMTUtilMessage=NoMessageSet
 REM ******************************************************************************************
 
 
@@ -311,7 +314,7 @@ REM *******************
 
 REM No errors were detected
 IF "%ErrorLevel%"=="0" (
-  ECHO The store file catalog was successfully verified with no errors
+  SET USMTUtilMessage=The store file catalog was successfully verified with no errors
 )
 
 REM Catalog file was found to be corrupt
@@ -321,6 +324,12 @@ IF "%ErrorLevel%"=="42" (
   pause
   EXIT /B
 )
+
+ECHO.
+ECHO.
+ECHO %USMTUtilMessage%
+ECHO.
+ECHO.
 
 REM *******************
 REM Running the command
@@ -333,17 +342,17 @@ REM *******************
 
 REM No errors were detected
 IF "%ErrorLevel%"=="0" (
-  ECHO The operation was completed with no errors reported
+  SET USMTMessage=The operation was completed with no errors reported
 )
 
 REM Non fatal errors were detected and skipped as /c was selected
 IF "%ErrorLevel%"=="3" (
-  ECHO The operation was completed with only non-fatal errors reported
+  SET USMTMessage=The operation was completed with only non-fatal errors reported
 )
 
 REM Detected no admin rights
 IF "%ErrorLevel%"=="34" (
-  ECHO You need to start the script with administrative rights
+  SET USMTMessage=You need to start the script with administrative rights
 )
 
 REM Detected local accounts to be loaded that do not exist on the target
@@ -364,6 +373,14 @@ IF /I "%USMTSkipNonFatal%"=="Yes" (
   %USMTCmd% /c
 )
 REM *******************
+
+ECHO.
+ECHO.
+ECHO %USMTUtilMessage%
+ECHO.
+ECHO.
+ECHO %USMTMessage%
+ECHO.
 
 REM Reverts currnet folder to initial folder.
 popd
