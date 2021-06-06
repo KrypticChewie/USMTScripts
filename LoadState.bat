@@ -60,7 +60,7 @@ REM   Support has been provided if it is in the previous location but will be re
 REM Version: 1.4.1 (2021-05-30)
 REM Added support for paths with spaces
 REM Version: 1.4.2 (2021-05-30)
-REM Error dection added for only non-fatal errors
+REM Error detection added for only non-fatal errors
 REM	  If this is detected a prompt will ask if to retry skipping non-fatal errors
 REM	  A message is displayed for successful completion when /c is used (different return code)
 REM Added parameter support
