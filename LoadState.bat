@@ -2,7 +2,7 @@
 
 ECHO ******************************************************************************************
 ECHO This script will take a username and a domain name and run loadstate against that user
-ECHO Version: 1.5.1 (2021-06-05)
+ECHO Version: 1.5.2 (2021-06-06)
 ECHO Created By: Kris Deen (KrpyticChewie)
 ECHO ******************************************************************************************
 
@@ -74,6 +74,8 @@ REM   Added scan store before load to verify catalog file
 REM Version: 1.5.1 (2021-06-05)
 REM   Improved layout messages from loadstate and usmtutils
 REM   Added messages from loadstate and usmtutils to variables
+REM Version: 1.5.2 (2021-06-06)
+REM   Modified date stamp on logs to always be formatted as year-month-day time
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -107,6 +109,7 @@ SET USMTUseAltUSMTPath=NotSet
 SET USMTAltUSMTPath=%USMTPath%
 SET USMTMessage=NoMessageSet
 SET USMTUtilMessage=NoMessageSet
+SET USMTVscSwitch=/vsc
 REM ******************************************************************************************
 
 
@@ -231,7 +234,21 @@ REM Changes current folder to appropriate architecture executable.
 pushd %USMTRunPath%
 
 REM Sets the date and time aspect of the log file and changes / and : to -
-SET LogStamp=%DATE% %TIME%
+REM SET LogStamp=%DATE% %TIME%
+
+REM Modified from https://superuser.com/questions/1086136/batch-script-cmd-resulting-in-dd-mm-yyyy-weekday-format
+rem get the date
+rem use findstr to strip blank lines from wmic output
+for /f "usebackq skip=1 tokens=1-3" %%g in (`wmic Path Win32_LocalTime Get Day^,Month^,Year ^| findstr /r /v "^$"`) do (
+  set _day=00%%g
+  set _month=00%%h
+  set _year=%%i
+  )
+rem pad day and month with leading zeros
+set _month=%_month:~-2%
+set _day=%_day:~-2%
+
+SET LogStamp=%_year%-%_month%-%_day% %TIME%
 SET LogStamp=%LogStamp:/=-%
 SET LogStamp=%LogStamp::=-%
 
