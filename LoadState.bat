@@ -2,7 +2,7 @@
 
 ECHO ******************************************************************************************
 ECHO This script will take a username and a domain name and run loadstate against that user
-ECHO Version: 1.5.2 (2021-06-06)
+ECHO Version: 1.5.3 (2021-06-06)
 ECHO Created By: Kris Deen (KrpyticChewie)
 ECHO ******************************************************************************************
 
@@ -76,6 +76,8 @@ REM   Improved layout messages from loadstate and usmtutils
 REM   Added messages from loadstate and usmtutils to variables
 REM Version: 1.5.2 (2021-06-06)
 REM   Modified date stamp on logs to always be formatted as year-month-day time
+REM Version: 1.5.3 (2021-06-06)
+REM   Added progress log
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -275,11 +277,13 @@ IF "%USMTUser%"=="AllUsers" (
   SET USMTLog=/l:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp%.log"
   SET USMTUtilStoreDir=%USMTStorePath%Data\!USMTPCName!
   SET USMTUtilLog=/l:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp% - Verify.log"
+  SET USMTProgressLog=/progress:"%USMTPath%Logs\Loads\!USMTPCName! - %LogStamp% - Progress.log"
 ) ELSE (
   SET USMTStore="%USMTStorePath%Data\%USMTUser%"
   SET USMTLog=/l:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp%.log"
   SET USMTUtilStoreDir=%USMTStorePath%Data\%USMTUser%
   SET USMTUtilLog=/l:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp% - Verify.log"
+  SET USMTProgressLog=/progress:"%USMTPath%Logs\Loads\%USMTUser% - %LogStamp% - Progress.log"
 )
 SET USMTUserSel=/ue:*\* /ui:%USMTDomain%\%USMTUser%
 IF /I "%USMTUserEx%"=="Yes" (
@@ -300,9 +304,9 @@ REM *******************
 REM The actual USMT command.
 REM If there is no user selection the command is run without the user selection switches
 IF "%USMTUser%"=="AllUsers" (
-	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTLog% %1
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserCmd% %USMTLocalsExCmd% %USMTXml% %USMTLog% %USMTProgressLog% %1
 ) ELSE (
-	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog% %1
+	SET USMTCmd=%USMTProc% %USMTStore% %USMTUserSel% %USMTXml% %USMTLog% %USMTProgressLog% %1
 )
 
 REM *******************
