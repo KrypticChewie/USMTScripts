@@ -2,7 +2,7 @@
 
 ECHO ******************************************************************************************
 ECHO This script will take a username and a domain name and run scanstate against that user
-ECHO Version: 1.6.3 (2021-06-06)
+ECHO Version: 1.6.4 (2024-08-29)
 ECHO Created By: Kris Deen (KrpyticChewie)
 ECHO ******************************************************************************************
 
@@ -80,6 +80,8 @@ REM   Modified date stamp on logs to always be formatted as year-month-day time
 REM   Fixed volume shadow switch was not actually set
 REM Version: 1.6.3 (2021-06-06)
 REM   Added progress log
+REM Version: 1.6.4 (2024-08-29)
+REM   Fixed verbiage for store location prompt
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -241,7 +243,7 @@ SET /P USMTLocalsEx=Exclude local users? (Options=Yes No Default=Yes):
 IF NOT DEFINED USMTLocalsEx SET USMTLocalsEx=Yes
 
 REM Sets using custom store location.
-SET /P USMTUseAltUSMTPath=Sets custom store location? (Options=Yes No Default=Yes):
+SET /P USMTUseAltUSMTPath=Sets custom store location? (Options=Yes No Default=No):
 IF NOT DEFINED USMTUseAltUSMTPath SET USMTUseAltUSMTPath=No
 
 REM Changes current folder to appropriate architecture executable.
