@@ -2,7 +2,7 @@
 
 ECHO ******************************************************************************************
 ECHO This script will take a username and a domain name and run loadstate against that user
-ECHO Version: 1.5.3 (2021-06-06)
+ECHO Version: 1.5.4 (2025-02-04)
 ECHO Created By: Kris Deen (KrpyticChewie)
 ECHO ******************************************************************************************
 
