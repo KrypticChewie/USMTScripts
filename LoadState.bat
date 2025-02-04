@@ -78,6 +78,8 @@ REM Version: 1.5.2 (2021-06-06)
 REM   Modified date stamp on logs to always be formatted as year-month-day time
 REM Version: 1.5.3 (2021-06-06)
 REM   Added progress log
+REM Version: 1.5.4 (2025-02-04)
+REM   Fixed error when WMIC is not enabled and it is used to detect OS type
 REM ******************************************************************************************
 REM TODO: Add option for setting USMT path
 REM TODO: Add option for setting log path
@@ -132,17 +134,32 @@ ECHO.
 REM ******************************************************************************************
 
 
-REM Finds and sets the OS type
-FOR /F "tokens=2 delims==*" %%A IN ('wmic os get producttype^ /Value ^| findstr "[0-9P]"') DO (
-	SET OSTYPE=%%A
-)
-SET USMTOSType=%OSTYPE%
+REM Reset error level
+ver >nul
 
-REM Checks if OS type is workstation and exits if not
-IF NOT "%USMTOSType%"=="1" (
-	ECHO.USMT does not support server versions of Windows
-	pause 
-	EXIT /B
+REM Check for WMIC
+where wmicX >nul 2>&1
+
+if %ERRORLEVEL%==0 (
+    echo WMIC is available.
+    
+    REM Retrieve the product type from WMIC
+    FOR /F "tokens=2 delims==" %%A IN ('wmic os get producttype /Value ^| find "="') DO (
+        set "OSTYPE=%%A"
+    )
+    
+    REM Trim any leading or trailing spaces from OSTYPE.
+    for /F "tokens=* delims= " %%i in ("!OSTYPE!") do set "USMTOSType=%%i"
+    
+    REM Check if OS type is workstation (should be exactly 1)
+    IF NOT "!USMTOSType!"=="1" (
+      echo USMT does not support server versions of Windows.
+      pause 
+      EXIT /B
+    )
+) else (
+    echo WMIC is not available.
+    echo Ensure this is a workstation version of Windows or exit.
 )
 
 REM Set domain to be used.  Will use NPNT is nothing is set.
